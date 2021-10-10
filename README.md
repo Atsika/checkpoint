@@ -48,7 +48,7 @@ Checkpoint's TLS configuration follows the state-of-the art cryptography. It use
 
 ### 📄 Simple configuration
 
-Checkpoint is easily configurable through a [config file](config.json). You will need to generate a TLS certificate using [Let's Encrypt]() for example or the provided script [gen_tls_cert.sh](gen_tls_cert.sh) (⚠️ this will generate a self-signed certificate).  
+Checkpoint is easily configurable through a [config file](example.config.json). You will need to generate a TLS certificate using [Let's Encrypt](https://letsencrypt.org/) for example or the provided script [gen_tls_cert.sh](gen_tls_cert.sh) (⚠️ this will generate a self-signed certificate).  
 The different values to configure are the following :
 * listenurl : Address on which to listen (format: IP:PORT)
 * certs :
@@ -62,6 +62,8 @@ The different values to configure are the following :
   * fail : Url to redirect to when capatcha has failed (where bot go)
 * parameters : Required parameters in initial request. It those parameters are missing, the user will always be redirected to the fail url
 * decoy : Url displayed on the html page. This is just a decoy convenient for a social engineering aspect. 
+
+> To start using reCAPTCHA, you need to [sign up for an API key pair](http://www.google.com/recaptcha/admin) for your site. The key pair consists of a site key and secret key. The site key is used to invoke reCAPTCHA service on your site or mobile application. - [Google's doc](https://developers.google.com/recaptcha/intro#recaptcha-overview)
 
 <details open>
     <summary>Here is an exemple of configuration file ⬇️</summary>
@@ -111,7 +113,13 @@ chmod +x checkpoint
 
 ## Usage
 
-Once Checkpoint is built, you need to configure it through a configuration file (cf. [Simple configuration](#simple-configration)). When it's done, simply run the binary using the following command :
+Once Checkpoint is built, you need to configure it through a configuration file (cf. [Simple configuration](#simple-configration)). Configuration file must be named `config.json` and be placed in the same folder as Checkpoint. You can use the following command to make a copy of the example file:
+
+```
+cp example.config.json config.json
+```
+
+When you've finished completing the file with your values, simply run the binary using the following command :
 
 ```
 ./checkpoint
