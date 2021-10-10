@@ -22,7 +22,7 @@ You must prove you're human to continue.
 * Simple configuration
 * Cross-platform
 
-### 🪞 Page mimic
+### 👀 Page mimic
 
 Checkpoint mimics Google's "unsual traffic" page. It's a pretty simple page yet really effective because it should sound familiar to anyone. This is very valuable from a social engineering point of view.
 
@@ -50,6 +50,7 @@ Checkpoint's TLS configuration follows the state-of-the art cryptography. It use
 
 Checkpoint is easily configurable through a [config file](config.json). You will need to generate a TLS certificate using [Let's Encrypt]() for example or the provided script [gen_tls_cert.sh](gen_tls_cert.sh) (⚠️ this will generate a self-signed certificate).  
 The different values to configure are the following :
+* listenurl : Address on which to listen (format: IP:PORT)
 * certs :
   * crt : Path to TLS certificate
   * key : Path to TLS certificate private key
@@ -66,7 +67,8 @@ The different values to configure are the following :
     <summary>Here is an exemple of configuration file ⬇️</summary>
 
 ```json
-{
+{   
+    "listenurl":"0.0.0.0:443",
     "certs":{
         "crt":"certs/tls.crt",
         "key":"certs/tls.key"

@@ -17,7 +17,8 @@ import (
 
 // Struct used for user configuration
 type Config struct {
-	Certs struct {
+	ListenUrl string
+	Certs     struct {
 		Crt string
 		Key string
 	}
@@ -96,7 +97,7 @@ func configTls(mux *mux.Router) *http.Server {
 		},
 	}
 	srv := &http.Server{
-		Addr:         ":https",
+		Addr:         conf.ListenUrl,
 		Handler:      mux,
 		TLSConfig:    cfg,
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
