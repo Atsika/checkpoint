@@ -58,10 +58,10 @@ The different values to configure are the following :
   * sitekey : reCAPATCHA site key
   * privatekey : reCAPTCHA private key
 * redirect : 
-  * success : Url to redirect to when capatcha is solved (where human go)
-  * fail : Url to redirect to when capatcha has failed (where bot go)
-* parameters : Required parameters in initial request. It those parameters are missing, the user will always be redirected to the fail url
-* decoy : Url displayed on the html page. This is just a decoy convenient for a social engineering aspect. 
+  * success : URL to redirect to when capatcha is solved (where humans go).
+  * fail : URL to redirect to when capatcha has failed (where bots go).
+* parameters : Required parameters in initial request. If those parameters are missing, the user will always be redirected to the fail URL
+* decoy : URL displayed on the html page. This is just a decoy convenient for a social engineering aspect  
 
 > To start using reCAPTCHA, you need to [sign up for an API key pair](http://www.google.com/recaptcha/admin) for your site. The key pair consists of a site key and secret key. The site key is used to invoke reCAPTCHA service on your site or mobile application. - [Google's doc](https://developers.google.com/recaptcha/intro#recaptcha-overview)
 
