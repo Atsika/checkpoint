@@ -1,0 +1,31 @@
+# URL to listen on
+# Format: IP:PORT
+listen = "0.0.0.0:443"
+
+# Path to TLS cert
+[tls]
+cert = "/path/to/tls.crt"
+key = "/path/to/tls.key"
+
+# Google's reCAPTCHA configuration. Version can either be 2 or 3. 
+# More info: https://developers.google.com/recaptcha/intro#recaptcha-overview
+[captcha]
+version = 3
+site= "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+private = "YYYYYYYYYYYYYYYYYYYYYYYYYYY"
+
+# Redirection URLs
+[redirect]
+good = "https://domain.com/search/items?version=2"
+bad = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+# Request need to match the following elements to be redirected to the good URL.
+# Format: ["param1", "value1", "param2", "value2"]
+# If you only care about the param, leave value empty: 
+# ["param1", "", "param2", ""]
+[match]
+route = "/the/only/allowed/route"
+parameters = ["uid", "", "page", "3"]
+
+# Example of a valid URL given the above configuration: https://domain.com/the/only/allowed/route?uid=TEST&page=3
+# This will redirect to: https://domain.com/search/items?version=2&uid=TEST&page=3
