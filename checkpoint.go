@@ -158,6 +158,7 @@ func handleCaptcha(w http.ResponseWriter, r *http.Request) {
 			if score < 0.7 {
 				success = false
 			}
+			log.WithField("score", score).Info("captcha response")
 		}
 	}
 	// This is where we return either the good url or a dummy redirection
