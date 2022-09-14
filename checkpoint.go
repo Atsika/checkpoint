@@ -108,7 +108,8 @@ func handleNotFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCaptcha(w http.ResponseWriter, r *http.Request) {
-	status := false
+	success := false
+	score := 0.0
 	var front Front
 
 	verification, err := io.ReadAll(r.Body)
@@ -144,14 +145,24 @@ func handleCaptcha(w http.ResponseWriter, r *http.Request) {
 			goto REDIRECT
 		}
 
-		err = json.Unmarshal(apiResponse["success"], &status)
+		err = json.Unmarshal(apiResponse["success"], &success)
 		if err != nil {
 			goto REDIRECT
+		}
+
+		if config.Captcha.Version == 3 {
+			err = json.Unmarshal(apiResponse["score"], &score)
+			if err != nil {
+				goto REDIRECT
+			}
+			if score < 0.7 {
+				success = false
+			}
 		}
 	}
 	// This is where we return either the good url or a dummy redirection
 REDIRECT:
-	if status {
+	if success {
 		logReq("captcha solved", log.InfoLevel, r)
 		goodUrl := buildURL(front.Url)
 		w.Write([]byte(goodUrl))
