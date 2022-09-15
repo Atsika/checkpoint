@@ -164,7 +164,7 @@ func handleCaptcha(w http.ResponseWriter, r *http.Request) {
 	// This is where we return either the good url or a dummy redirection
 REDIRECT:
 	if success {
-		logReq("captcha "+strconv.Itoa(config.Captcha.Version)+" solved", log.InfoLevel, r)
+		logReq("captcha v"+strconv.Itoa(config.Captcha.Version)+" solved", log.InfoLevel, r)
 		goodUrl := buildURL(front.Url)
 		w.Write([]byte(goodUrl))
 	} else {
