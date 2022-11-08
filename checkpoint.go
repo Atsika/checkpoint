@@ -141,8 +141,6 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 			goto REDIRECT
 		}
 
-		fmt.Println(string(content))
-
 		// Parse API response (https://developers.google.com/recaptcha/docs/verify#api-response)
 		rawJson := make(map[string]json.RawMessage)
 		err = json.Unmarshal(content, &rawJson)
