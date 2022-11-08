@@ -125,8 +125,6 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 			goto REDIRECT
 		}
 
-		fmt.Println(front)
-
 		// Set post parameters to send to Google for verification
 		form := url.Values{
 			"secret":   {config.Captcha.PrivateKey},
