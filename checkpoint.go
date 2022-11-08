@@ -226,11 +226,11 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 		} else {
 			success = false
 		}
-		log.WithField("success", !success).Info("botd response")
+		log.WithField("bot", !success).Info("botd response")
 
 	} else {
 		success = !front.IsBot
-		log.WithField("success", !success).Info("botd response")
+		log.WithField("bot", !success).Info("botd response")
 	}
 
 	// This is where we return either the good url or a dummy redirection
