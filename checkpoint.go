@@ -141,6 +141,8 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 			goto REDIRECT
 		}
 
+		fmt.Println(string(content))
+
 		// Parse API response (https://developers.google.com/recaptcha/docs/verify#api-response)
 		rawJson := make(map[string]json.RawMessage)
 		err = json.Unmarshal(content, &rawJson)
@@ -208,14 +210,12 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 		data := make(map[string]json.RawMessage)
 		err = json.Unmarshal(botd["data"], &data)
 		if err != nil {
-			fmt.Println("couldn't unmarshal data")
 			goto REDIRECT
 		}
 
 		bot := make(map[string]json.RawMessage)
 		err = json.Unmarshal(data["bot"], &bot)
 		if err != nil {
-			fmt.Println("couldn't unmarshal bot")
 			goto REDIRECT
 		}
 
@@ -226,9 +226,11 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 		} else {
 			success = false
 		}
+		log.WithField("success", !success).Info("botd response")
 
 	} else {
 		success = !front.IsBot
+		log.WithField("success", !success).Info("botd response")
 	}
 
 	// This is where we return either the good url or a dummy redirection
