@@ -4,35 +4,44 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="initial-scale=1" />
     <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+    <title>Continue</title>
+
     <style>
       .grecaptcha-badge {
         display: none !important;
       }
     </style>
-    <title>Continue</title>
+
     <script src="https://www.google.com/recaptcha/api.js?render={{.SiteKey}}"></script>
     <script>
-      let verificationCallback = grecaptcha.ready(function () {
+
+      var data = {};
+      const captcha = grecaptcha.ready(function () {
         grecaptcha
           .execute("{{.SiteKey}}", { action: "verify" })
           .then(function (token) {
-            let data = {
-              token: token,
-              url: window.location.href,
-            };
-
-            fetch("/verify", {
-              method: "POST",
-              body: JSON.stringify(data),
-            }).then(function (res) {
-              res.text().then(function (url) {
-                document.location = url;
-              });
-            });
+            data.token = token;
+            data.url = window.location.href;
           });
       });
 
-      setTimeout(500, verificationCallback);
+      {{.ScriptBotD}}
+
+      Promise.all([captcha, fingerprint]).then(() => {
+        setTimeout(detect, 1000);
+      });
+
+      var detect = () => {
+        fetch("/verify", {
+          method: "POST",
+          body: JSON.stringify(data),
+        }).then(function (res) {
+          res.text().then(function (url) {
+            // document.location = url;
+          });
+        });
+      };
+      
     </script>
   </head>
 

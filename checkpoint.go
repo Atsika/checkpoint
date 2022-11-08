@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"text/template"
 
 	conf "checkpoint/configuration"
@@ -20,8 +21,10 @@ import (
 
 // Struct used to organise front data (when sent to /verify)
 type Front struct {
-	Token string `json:"token"`
-	Url   string `json:"url"`
+	Token     string `json:"token"`
+	Url       string `json:"url"`
+	IsBot     bool   `json:"isbot"`
+	RequestID string `json:"requestid"`
 }
 
 var config = &conf.Config
@@ -48,8 +51,8 @@ func main() {
 		Methods(http.MethodGet).
 		Queries(config.Match.Parameters...)
 
-		// Handle captcha verification
-	r.HandleFunc("/verify", handleCaptcha).
+	// Handle captcha verification
+	r.HandleFunc("/verify", handleDetection).
 		Methods(http.MethodPost)
 
 	// Add all middlewares
@@ -107,7 +110,7 @@ func handleNotFound(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, config.Redirect.Bad, http.StatusMovedPermanently)
 }
 
-func handleCaptcha(w http.ResponseWriter, r *http.Request) {
+func handleDetection(w http.ResponseWriter, r *http.Request) {
 	success := false
 	score := 0.0
 	var front Front
@@ -121,6 +124,8 @@ func handleCaptcha(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			goto REDIRECT
 		}
+
+		fmt.Println(front)
 
 		// Set post parameters to send to Google for verification
 		form := url.Values{
@@ -139,19 +144,19 @@ func handleCaptcha(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Parse API response (https://developers.google.com/recaptcha/docs/verify#api-response)
-		var apiResponse map[string]json.RawMessage
-		err = json.Unmarshal(content, &apiResponse)
+		rawJson := make(map[string]json.RawMessage)
+		err = json.Unmarshal(content, &rawJson)
 		if err != nil {
 			goto REDIRECT
 		}
 
-		err = json.Unmarshal(apiResponse["success"], &success)
+		err = json.Unmarshal(rawJson["success"], &success)
 		if err != nil {
 			goto REDIRECT
 		}
 
 		if config.Captcha.Version == 3 {
-			err = json.Unmarshal(apiResponse["score"], &score)
+			err = json.Unmarshal(rawJson["score"], &score)
 			if err != nil {
 				goto REDIRECT
 			}
@@ -161,10 +166,77 @@ func handleCaptcha(w http.ResponseWriter, r *http.Request) {
 			log.WithField("score", score).Info("captcha response")
 		}
 	}
+
+	if config.BotD.Pro {
+
+		req, err := http.NewRequest("GET", "https://eu.api.fpjs.io/events/"+front.RequestID, nil)
+		if err != nil {
+			goto REDIRECT
+		}
+
+		req.Header.Add("Auth-API-Key", config.BotD.Secret)
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			goto REDIRECT
+		}
+
+		content, err := io.ReadAll(resp.Body)
+		if err != nil {
+			goto REDIRECT
+		}
+
+		// Parse API response (https://developers.google.com/recaptcha/docs/verify#api-response)
+		rawJson := make(map[string]json.RawMessage)
+		err = json.Unmarshal(content, &rawJson)
+		if err != nil {
+			goto REDIRECT
+		}
+
+		products := make(map[string]json.RawMessage)
+		err = json.Unmarshal(rawJson["products"], &products)
+		if err != nil {
+
+			goto REDIRECT
+		}
+
+		botd := make(map[string]json.RawMessage)
+		err = json.Unmarshal(products["botd"], &botd)
+		if err != nil {
+			goto REDIRECT
+		}
+
+		data := make(map[string]json.RawMessage)
+		err = json.Unmarshal(botd["data"], &data)
+		if err != nil {
+			fmt.Println("couldn't unmarshal data")
+			goto REDIRECT
+		}
+
+		bot := make(map[string]json.RawMessage)
+		err = json.Unmarshal(data["bot"], &bot)
+		if err != nil {
+			fmt.Println("couldn't unmarshal bot")
+			goto REDIRECT
+		}
+
+		isbot := strings.Trim(string(bot["result"]), `"`)
+
+		if isbot == "notDetected" {
+			success = true
+		} else {
+			success = false
+		}
+
+	} else {
+		success = !front.IsBot
+	}
+
 	// This is where we return either the good url or a dummy redirection
 REDIRECT:
 	if success {
-		logReq("captcha v"+strconv.Itoa(config.Captcha.Version)+" solved", log.InfoLevel, r)
+		logReq("detection passed", log.InfoLevel, r)
 		goodUrl := buildURL(front.Url)
 		w.Write([]byte(goodUrl))
 	} else {
@@ -183,8 +255,35 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
+	ScriptBotD := getScriptBotD()
+
 	// Return filled template
-	t.Execute(w, struct{ SiteKey string }{config.Captcha.SiteKey})
+	t.Execute(w, struct {
+		SiteKey    string
+		ScriptBotD string
+	}{config.Captcha.SiteKey, ScriptBotD})
+}
+
+func getScriptBotD() string {
+
+	if config.BotD.Pro {
+		return `const fingerprint = import("https://fpcdn.io/v3/` + config.BotD.Public + `").then(
+			(FingerprintJS) => FingerprintJS.load()
+		  );
+		  
+		fingerprint
+			.then((fp) => fp.get())
+			.then((result) => {
+			  data.requestid = result.requestId;
+			  data.isbot = false;
+			});`
+	}
+
+	return `const fingerprint = import('https://openfpcdn.io/botd/v1').then((Botd) => Botd.load())
+
+    fingerprint
+      .then((botd) => botd.detect())
+      .then((result) => data.isbot = result.bot);`
 }
 
 // Build good redirection url with parameters

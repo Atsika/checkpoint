@@ -14,6 +14,12 @@ version = 3
 site= "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 private = "YYYYYYYYYYYYYYYYYYYYYYYYYYY"
 
+# FingerprintJS BotD configuration. If you set pro to true, you will need API keys, otherwise the open-souce version will be used.
+[botd]
+pro = false
+public = "XXXXXXXXXXXXXXXXXXXX"
+secret = "YYYYYYYYYYYYYYYYYYYY"
+
 # Redirection URLs
 [redirect]
 good = "https://domain.com/search/items?version=2"
@@ -24,7 +30,7 @@ bad = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 # If you only care about the param, leave value empty: 
 # ["param1", "", "param2", ""]
 [match]
-route = "/the/only/allowed/route"
+route = "/only/allowed/route"
 parameters = ["uid", "", "page", "3"]
 
 # Example of a valid URL given the above configuration: https://domain.com/the/only/allowed/route?uid=TEST&page=3

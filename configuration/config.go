@@ -20,6 +20,11 @@ type Configuration struct {
 		SiteKey    string `toml:"site"`
 		PrivateKey string `toml:"private"`
 	}
+	BotD struct {
+		Pro    bool   `toml:"pro"`
+		Public string `toml:"public"`
+		Secret string `toml:"secret"`
+	}
 	Match struct {
 		Route      string   `toml:"route"`
 		Parameters []string `toml:"parameters"`

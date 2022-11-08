@@ -14,11 +14,13 @@ Halt ! ✋
 Checkpoint is a web access control tool.  
 You must prove you're human to continue.  
 
+
 ## Features
 
 * Custom page
 * Flexible
 * reCAPTCHA
+* BotD
 * Secure TLS configuration
 * Simple configuration
 * Cross-platform
@@ -30,6 +32,7 @@ Checkpoint allows you to display custom HTML pages before detecting if the reque
 <div align="center">
     <img src="images/unusual_traffic.png">
 </div>
+
 
 ### Flexible
 
@@ -50,6 +53,7 @@ Then added the function in the slice.
 Funcs = []mux.MiddlewareFunc{hstsMiddleware}
 ```
 
+
 ### 🤖 reCAPTCHA
 
 Checkpoint relies on Google's CAPTCHA solution.
@@ -60,7 +64,14 @@ Checkpoint relies on Google's CAPTCHA solution.
 
 Both v2 and v3 can be used. Checkpoint is provided with 2 lightweight templates, one for each version.  
 
-**It is important to name the templates `captcha2.html` and `captcha3.html` and place them in the `static` folder**. Depending one the version specified in the configuration file, Checkpoint will the right file.
+**It is important to name the templates `captcha2.html` and `captcha3.html` and place them in the `static` folder**. Depending one the version specified in the configuration file, Checkpoint will get the right file.
+
+### 🔍 BotD
+
+Checkpoint uses BotD, a JavaScript agent capable of detecting bots. BotD is open source and be found [here](https://github.com/fingerprintjs/BotD). The pro version brings advanced bots detection.
+
+> BotD is a bot detection platform that helps you to detect automated usage of your website. - [Fingerprint's doc](https://dev.fingerprint.com/docs/bot-detection-quick-start-guide)
+
 
 ### 🔒 Secure TLS configuration
 
@@ -69,6 +80,7 @@ Checkpoint's TLS configuration follows the state-of-the art cryptography. It use
 * TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
 * TLS_RSA_WITH_AES_256_GCM_SHA384
 * TLS_RSA_WITH_AES_256_CBC_SHA
+
 
 ### 📄 Simple configuration
 
@@ -80,8 +92,13 @@ The different values to configure are the following :
   * cert : Path to TLS certificate
   * key : Path to TLS certificate private key
 * captcha :
+  * version : reCAPTCHA version to be used (only options are 2 or 3)
   * site : reCAPATCHA site key
   * private : reCAPTCHA private key
+* botd :
+  * pro : Use or not BotD's pro version (only options are true or false)
+  * public : BotD Pro public API key
+  * secret : BotD Pro secret API key
 * redirect : 
   * good : URL to redirect to when CAPTCHA is solved (where human go)
   * bad : URL to redirect to when CAPTCH has failed (where bot go)
@@ -111,6 +128,12 @@ version = 3
 site= "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 private = "YYYYYYYYYYYYYYYYYYYYYYYYYYY"
 
+# FingerprintJS BotD configuration. If you set pro to true, you will need API keys, otherwise the open-souce version will be used.
+[botd]
+pro = false
+public = "XXXXXXXXXXXXXXXXXXXX"
+secret = "YYYYYYYYYYYYYYYYYYYY"
+
 # Redirection URLs
 [redirect]
 good = "https://domain.com/search/items?version=2"
@@ -129,16 +152,17 @@ parameters = ["uid", "", "page", "3"]
 ```
 </details>
 
+
 ### 🤝 Cross-platform
 
 Since Checkpoint is made in Go and is using full cross-platform packages, it should run on any platform.
 
-  
 ⚠️ Currently only tested on:
 * Linux Fedora 36
 * Kali Linux 2021.2
 
 Feel free to test it on other platform and submit a merge request with updated [README.md](README.md).
+
 
 ## Installation
 
@@ -150,6 +174,7 @@ cd checkpoint
 go build
 chmod +x checkpoint
 ```
+
 
 ## Usage
 
@@ -165,13 +190,16 @@ When you've finished completing the file with your values, simply run the binary
 ./checkpoint
 ```
 
+
 ## TODO
 
 * Blacklist IPs
 
+
 ## License
 
 MIT License (see [LICENSE](LICENSE)).
+
 
 ## Author
 
