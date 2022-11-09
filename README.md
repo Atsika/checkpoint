@@ -194,6 +194,7 @@ When you've finished completing the file with your values, simply run the binary
 ## TODO
 
 * Blacklist IPs
+* Fix some issues with Firefox (Snap version) that doesn't send front data to backend
 
 
 ## License

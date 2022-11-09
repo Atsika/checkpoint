@@ -123,7 +123,7 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 		goto BOTD
 	}
 	{
-		fmt.Println("Front data", verification)
+
 		err = json.Unmarshal(verification, &front)
 		if err != nil {
 			goto BOTD
@@ -172,7 +172,6 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 	}
 
 BOTD:
-	log.Info("Checking with BotD")
 	if config.BotD.Pro {
 
 		req, err := http.NewRequest("GET", "https://eu.api.fpjs.io/events/"+front.RequestID, nil)
