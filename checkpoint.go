@@ -123,6 +123,7 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 		goto BOTD
 	}
 	{
+		fmt.Println("Front data", verification)
 		err = json.Unmarshal(verification, &front)
 		if err != nil {
 			goto BOTD
@@ -143,6 +144,8 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			goto BOTD
 		}
+
+		fmt.Println("reCAPTCHA response", string(content))
 
 		// Parse API response (https://developers.google.com/recaptcha/docs/verify#api-response)
 		rawJson := make(map[string]json.RawMessage)
@@ -169,6 +172,7 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 	}
 
 BOTD:
+	log.Info("Checking with BotD")
 	if config.BotD.Pro {
 
 		req, err := http.NewRequest("GET", "https://eu.api.fpjs.io/events/"+front.RequestID, nil)
@@ -189,7 +193,7 @@ BOTD:
 			goto REDIRECT
 		}
 
-		// Parse API response (https://developers.google.com/recaptcha/docs/verify#api-response)
+		// Parse API response (https://dev.fingerprint.com/docs/server-api#get-events)
 		rawJson := make(map[string]json.RawMessage)
 		err = json.Unmarshal(content, &rawJson)
 		if err != nil {
@@ -199,7 +203,6 @@ BOTD:
 		products := make(map[string]json.RawMessage)
 		err = json.Unmarshal(rawJson["products"], &products)
 		if err != nil {
-
 			goto REDIRECT
 		}
 
