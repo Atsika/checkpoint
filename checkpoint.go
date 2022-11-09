@@ -51,7 +51,10 @@ func main() {
 		Methods(http.MethodGet).
 		Queries(config.Match.Parameters...)
 
-	// Handle captcha verification
+	// Handle static assets like scripts, images, fonts, etc.
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
+	// Handle bot detection
 	r.HandleFunc("/verify", handleDetection).
 		Methods(http.MethodPost)
 
@@ -248,7 +251,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	captchaVersion := strconv.Itoa(config.Captcha.Version)
 
 	// Fill the right template
-	t, err := template.ParseFiles("static/captcha" + captchaVersion + ".html")
+	t, err := template.ParseFiles("templates/captcha" + captchaVersion + ".html")
 	if err != nil {
 		panic(err)
 	}
