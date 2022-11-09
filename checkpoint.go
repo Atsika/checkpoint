@@ -120,12 +120,12 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 
 	verification, err := io.ReadAll(r.Body)
 	if err != nil {
-		goto REDIRECT
+		goto BOTD
 	}
 	{
 		err = json.Unmarshal(verification, &front)
 		if err != nil {
-			goto REDIRECT
+			goto BOTD
 		}
 
 		// Set post parameters to send to Google for verification
@@ -136,30 +136,30 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 
 		resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify", form)
 		if err != nil {
-			goto REDIRECT
+			goto BOTD
 		}
 
 		content, err := io.ReadAll(resp.Body)
 		if err != nil {
-			goto REDIRECT
+			goto BOTD
 		}
 
 		// Parse API response (https://developers.google.com/recaptcha/docs/verify#api-response)
 		rawJson := make(map[string]json.RawMessage)
 		err = json.Unmarshal(content, &rawJson)
 		if err != nil {
-			goto REDIRECT
+			goto BOTD
 		}
 
 		err = json.Unmarshal(rawJson["success"], &success)
 		if err != nil {
-			goto REDIRECT
+			goto BOTD
 		}
 
 		if config.Captcha.Version == 3 {
 			err = json.Unmarshal(rawJson["score"], &score)
 			if err != nil {
-				goto REDIRECT
+				goto BOTD
 			}
 			if score < 0.7 {
 				success = false
@@ -168,6 +168,7 @@ func handleDetection(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+BOTD:
 	if config.BotD.Pro {
 
 		req, err := http.NewRequest("GET", "https://eu.api.fpjs.io/events/"+front.RequestID, nil)
