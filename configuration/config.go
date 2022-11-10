@@ -56,7 +56,7 @@ func GetScriptBotD() string {
 	}
 
 	if Config.BotD.Pro {
-		return `const fingerprint = import(` + Config.BotD.Import + `").then(
+		return `const fingerprint = import("` + Config.BotD.Import + `").then(
 			(FingerprintJS) => FingerprintJS.load()
 		  );
 		  
@@ -68,7 +68,7 @@ func GetScriptBotD() string {
 			});`
 	}
 
-	return `const fingerprint = import('` + Config.BotD.Import + `').then((Botd) => Botd.load())
+	return `const fingerprint = import("` + Config.BotD.Import + `").then((Botd) => Botd.load())
 
     fingerprint
       .then((botd) => botd.detect())
