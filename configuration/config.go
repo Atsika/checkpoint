@@ -57,8 +57,10 @@ func GetScriptBotD() string {
 
 	if Config.BotD.Pro {
 		return `const fingerprint = import("` + Config.BotD.Import + `").then(
-			(FingerprintJS) => FingerprintJS.load()
-		  );
+			(FingerprintJS) => FingerprintJS.load({
+				apiKey: '` + Config.BotD.Public + `'
+				region: 'eu'
+			}));
 		  
 		fingerprint
 			.then((fp) => fp.get())
