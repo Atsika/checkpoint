@@ -4,21 +4,23 @@ listen = "0.0.0.0:443"
 
 # Path to TLS cert
 [tls]
-cert = "/path/to/tls.crt"
-key = "/path/to/tls.key"
+cert = "/path/to/fullchain.pem"
+key = "/path/to/privkey.pem"
 
 # Google's reCAPTCHA configuration. Version can either be 2 or 3. 
 # More info: https://developers.google.com/recaptcha/intro#recaptcha-overview
 [captcha]
 version = 3
-site= "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+site = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 private = "YYYYYYYYYYYYYYYYYYYYYYYYYYY"
 
 # FingerprintJS BotD configuration. If you set pro to true, you will need API keys, otherwise the open-souce version will be used.
+# Import should point to BotD's script location (local or remote url)
 [botd]
 pro = false
 public = "XXXXXXXXXXXXXXXXXXXX"
 secret = "YYYYYYYYYYYYYYYYYYYY"
+import = "/static/script/botd.js"
 
 # Redirection URLs
 [redirect]

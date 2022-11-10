@@ -14,9 +14,9 @@ import (
 	conf "checkpoint/configuration"
 	middle "checkpoint/middlewares"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/gorilla/mux"
+	ua "github.com/mileusna/useragent"
+	log "github.com/sirupsen/logrus"
 )
 
 // Struct used to organise front data (when sent to /verify)
@@ -32,7 +32,7 @@ var config = &conf.Config
 // Entrypoint
 func main() {
 	// Configure log output
-	log.SetFormatter(&log.TextFormatter{TimestampFormat: "2006-01-02 15:04:05", FullTimestamp: true, ForceQuote: true, QuoteEmptyFields: true, DisableColors: true})
+	log.SetFormatter(&log.TextFormatter{TimestampFormat: "2006-01-02 15:04:05", FullTimestamp: true, ForceQuote: true, QuoteEmptyFields: true})
 
 	// Display the cool banner
 	banner()
@@ -199,6 +199,7 @@ BOTD:
 			goto REDIRECT
 		}
 
+		// Going deep into nested JSON : products -> botd -> data -> bot -> result
 		products := make(map[string]json.RawMessage)
 		err = json.Unmarshal(rawJson["products"], &products)
 		if err != nil {
@@ -259,35 +260,11 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	ScriptBotD := getScriptBotD()
-
 	// Return filled template
 	t.Execute(w, struct {
 		SiteKey    string
 		ScriptBotD string
-	}{config.Captcha.SiteKey, ScriptBotD})
-}
-
-func getScriptBotD() string {
-
-	if config.BotD.Pro {
-		return `const fingerprint = import("https://fpcdn.io/v3/` + config.BotD.Public + `").then(
-			(FingerprintJS) => FingerprintJS.load()
-		  );
-		  
-		fingerprint
-			.then((fp) => fp.get())
-			.then((result) => {
-			  data.requestid = result.requestId;
-			  data.isbot = false;
-			});`
-	}
-
-	return `const fingerprint = import('https://openfpcdn.io/botd/v1').then((Botd) => Botd.load())
-
-    fingerprint
-      .then((botd) => botd.detect())
-      .then((result) => data.isbot = result.bot);`
+	}{config.Captcha.SiteKey, config.BotD.Script})
 }
 
 // Build good redirection url with parameters
@@ -320,10 +297,12 @@ func buildURL(rawURL string) string {
 }
 
 func logReq(msg string, level log.Level, r *http.Request) {
+	userAgent := ua.Parse(r.UserAgent())
 	fields := log.Fields{
-		"ip":     r.RemoteAddr,
-		"method": r.Method,
-		"route":  r.URL.Path,
+		"ip":      r.RemoteAddr,
+		"method":  r.Method,
+		"route":   r.URL.Path,
+		"browser": userAgent.Name,
 	}
 
 	params := r.URL.Query()
